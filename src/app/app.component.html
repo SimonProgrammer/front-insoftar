@@ -1,5 +1,5 @@
 <!--The content below is only a placeholder and can be replaced.-->
-<div style="text-align:center">
+<!-- <div style="text-align:center">
   <h1>
     Welcome to {{ title }}!
   </h1>
@@ -7,4 +7,21 @@
 </div>
 <h2>Hello world </h2>
 
-<router-outlet></router-outlet>
+<mat-slider min="1" max="100" step="1" value="1"></mat-slider> -->
+
+<mat-toolbar color="warn">
+  <mat-toolbar-row>
+    <h1>Insoftar</h1>
+    <span class="menu-spacer"></span>
+    <div>
+      <a mat-button [routerLink]="'/adduser'"> Create user </a>
+      <a mat-button [routerLink]="'/listusers'"> List users </a>
+      <a mat-button [routerLink]="'/updateuser'"> Modify user </a>
+    </div>
+  </mat-toolbar-row>
+</mat-toolbar>
+
+<div [@routeAnimations]="o && o.activatedRouteData 
+      && o.activatedRouteData['animation']">
+    <router-outlet #o="outlet"></router-outlet>
+</div>

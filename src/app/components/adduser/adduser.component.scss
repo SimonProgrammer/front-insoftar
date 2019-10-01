@@ -1,0 +1,34 @@
+.form-container {
+    display: flex;
+    flex-direction: column;
+}
+  
+.form-container > * {
+    width: 100%;
+}
+
+mat-card{
+    padding: 1% 0%;
+}
+
+.row{
+    width:100%;
+    display:grid;
+    grid-template-columns: 50% 50%;
+
+    .item{
+        .mat-form-field{
+            width:80%;
+            margin: auto;
+            display:block;
+        }
+    }
+
+    .item-one{
+        .mat-form-field{
+            width:100%;
+            margin: auto;
+            display:block;
+        }
+    }
+}

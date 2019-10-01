@@ -1,0 +1,64 @@
+<div class="form-container">
+    <mat-card>
+        <form [formGroup]="userForm" #f="ngForm" (ngSubmit)="onSaveUser(userForm.value,f)">
+            <mat-card-header>
+                <mat-card-title>Add user {{submitted}}</mat-card-title>
+                <mat-card-subtitle>Form for add users in the app</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+                <div class="row">
+                    <article class="item">
+                        <mat-form-field color = "warn">
+                            <input type = "text" matInput placeholder="Identification" mask="0*" formControlName="identification" required>
+                            <mat-error *ngIf="submitted && fi.identification.errors">
+                                <span *ngIf="fi.identification.errors.required">Identification is required</span>
+                            </mat-error>
+                        </mat-form-field>
+                    </article>
+                    <article class="item">
+                        <mat-form-field color = "warn">
+                            <input type = "text" matInput placeholder="Name" formControlName="name" required>
+                            <mat-error *ngIf="submitted && fi.name.errors">
+                                <span *ngIf="fi.name.errors.required">Name is required</span>
+                            </mat-error>
+                        </mat-form-field>
+                    </article>
+                </div>
+                <div class="row">
+                    <article class="item">
+                        <mat-form-field color = "warn">
+                            <input type = "email" matInput placeholder="Email" formControlName="email" required>
+                                <mat-error *ngIf="fi.email.errors">
+                                    <span *ngIf="fi.email.errors.required">Email is required</span>
+                                    <span *ngIf="fi.email.errors.email">Email must be a valid email address</span>
+                                </mat-error>
+                        </mat-form-field>
+                    </article>
+                    <article class="item">
+                        <mat-form-field color = "warn">
+                            <input type = "text" matInput placeholder="Phone" mask="0*" formControlName="phone" required>
+                            <mat-error *ngIf="submitted && fi.phone.errors">
+                                <span *ngIf="fi.phone.errors.required">Phone is required</span>
+                            </mat-error>
+                        </mat-form-field>
+                    </article>
+                </div>
+                <div class="row">
+                    <article class="item">
+                        <mat-form-field color = "warn">
+                            <input type = "password" matInput placeholder="Password" formControlName="password" required>
+                            <mat-error *ngIf="submitted && fi.password.errors">
+                                <span *ngIf="fi.password.errors.required">Password is required</span>
+                                <span *ngIf="fi.password.errors.minlength">Password must be at least 6 characters</span>
+                            </mat-error>
+                        </mat-form-field>
+                    </article>
+                    <article class="item"></article>
+                </div>
+            </mat-card-content>
+            <mat-card-actions>
+                <button type="submit" mat-button style = "float: right;margin-right: 4%;">Save</button>
+            </mat-card-actions>
+        </form>
+    </mat-card>
+</div>
