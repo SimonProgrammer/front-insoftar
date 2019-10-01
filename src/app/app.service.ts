@@ -28,4 +28,18 @@ export class AppService {
      
     return this.http.post(this.url+'user/add',body);
   }
+
+  editUser(user:any): Observable<any>{
+    let json = JSON.stringify(user);
+    // let params = user;
+
+    let headers = new HttpHeaders({'Content-Type':'application/json'});
+
+    let body = new HttpParams({
+      fromObject : user
+    })
+    
+     
+    return this.http.put(this.url+'user/edit',body);
+  }
 }

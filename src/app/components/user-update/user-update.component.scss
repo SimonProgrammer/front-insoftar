@@ -1,0 +1,19 @@
+.mat-form-field{
+    display:block;
+}
+
+.mat-dialog-title{
+    text-align:center;
+}
+
+.mat-dialog-actions{
+    display:block;
+
+    .mat-raised-button:nth-child(1){
+        float:left;
+    }
+
+    .mat-raised-button:nth-child(2){
+        float:right;
+    }
+}

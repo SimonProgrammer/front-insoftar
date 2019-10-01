@@ -1,53 +1,124 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import {MatPaginator} from '@angular/material/paginator';
-import {MatTableDataSource} from '@angular/material/table';
+import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
+import { MatTableDataSource,MatPaginator,MatSort } from '@angular/material';
+import {MatDialog, MatDialogConfig} from "@angular/material";
+import {HttpClient} from '@angular/common/http';
+import {merge, Observable,Observer, of as observableOf} from 'rxjs';
+import {catchError, map, startWith, switchMap} from 'rxjs/operators';
+import { UserUpdateComponent } from '../user-update/user-update.component'
+import { Constant } from '../../constant';
 
 @Component({
   selector: 'app-listusers',
   templateUrl: './listusers.component.html',
   styleUrls: ['./listusers.component.scss']
 })
-export class ListusersComponent implements OnInit {
+export class ListusersComponent implements AfterViewInit  {
+  displayedColumns: string[] = ['identification','name', 'email','phone','created_at','updated_at','edit'];
+  userDataResource: UserHttpDatabase | null;
+  data: UserData[] = [];
 
-  displayedColumns: string[] = ['position', 'name', 'weight', 'symbol'];
-  dataSource = new MatTableDataSource<PeriodicElement>(ELEMENT_DATA);
+  resultsLength = 0;
+  isLoadingResults = true;
+  isRateLimitReached = false;
+  filterText: string;
 
-  @ViewChild(MatPaginator, {static: true}) paginator: MatPaginator;
+  observable: Observable<string>;
+  observer: Observer<string>;
 
-  constructor() { }
+  @ViewChild(MatPaginator, {static: false}) paginator: MatPaginator;
+  @ViewChild(MatSort, {static: false}) sort: MatSort;
 
-  ngOnInit() {
-    this.dataSource.paginator = this.paginator;
+  constructor(private _httpClient: HttpClient,private dialog: MatDialog) {}
+
+  ngAfterViewInit() {
+
+    this.observable = new Observable((observer: Observer<string>) => {
+      this.observer = observer;
+    });
+
+    this.userDataResource = new UserHttpDatabase(this._httpClient);
+
+    // If the user changes the sort order, reset back to the first page.
+    this.sort.sortChange.subscribe(() => this.paginator.pageIndex = 0);
+
+    this.filterText = '';
+
+    merge(this.sort.sortChange, this.paginator.page,this.observable)
+      .pipe(
+        startWith({}),
+        switchMap(() => {
+          this.isLoadingResults = true;
+          return this.userDataResource!.getRepoIssues(
+            this.sort.active, this.sort.direction, this.paginator.pageIndex,this.paginator.pageSize,this.filterText);
+        }),
+        map(data => {
+          // Flip flag to show that loading has finished.
+          this.isLoadingResults = false;
+          this.isRateLimitReached = false;
+          this.resultsLength = data.total_count;
+
+          return data.items;
+        }),
+        catchError(() => {
+          this.isLoadingResults = false;
+          // Catch if the GitHub API has reached its rate limit. Return empty data.
+          this.isRateLimitReached = true;
+          return observableOf([]);
+        })
+      ).subscribe(data => this.data = data);
   }
 
+  editUser(row: UserData){
+    this.openDialog(row);
+  }
+
+  applyFilter(filterValue: string) {
+    this.filterText = filterValue;
+    this.observer.next(filterValue);
+  }
+
+  openDialog(row: any) {
+
+    const dialogConfig = new MatDialogConfig();
+
+    // dialogConfig.disableClose = false;
+    // dialogConfig.autoFocus = true;
+    dialogConfig.width = "300px";
+
+    dialogConfig.data = row;
+
+    // this.dialog.open(UserUpdateComponent, dialogConfig);
+    
+    const dialogRef = this.dialog.open(UserUpdateComponent, dialogConfig);
+
+    dialogRef.afterClosed().subscribe(
+        data => this.observer.next('')
+    ); 
+}
 }
 
-export interface PeriodicElement {
+export interface UserApi {
+  items: UserData[];
+  total_count: number;
+}
+
+export interface UserData {
+  identification: number;
   name: string;
-  position: number;
-  weight: number;
-  symbol: string;
+  email: string;
+  phone: number;
+  created_at: Date;
+  updated_at: Date;
 }
 
-const ELEMENT_DATA: PeriodicElement[] = [
-  {position: 1, name: 'Hydrogen', weight: 1.0079, symbol: 'H'},
-  {position: 2, name: 'Helium', weight: 4.0026, symbol: 'He'},
-  {position: 3, name: 'Lithium', weight: 6.941, symbol: 'Li'},
-  {position: 4, name: 'Beryllium', weight: 9.0122, symbol: 'Be'},
-  {position: 5, name: 'Boron', weight: 10.811, symbol: 'B'},
-  {position: 6, name: 'Carbon', weight: 12.0107, symbol: 'C'},
-  {position: 7, name: 'Nitrogen', weight: 14.0067, symbol: 'N'},
-  {position: 8, name: 'Oxygen', weight: 15.9994, symbol: 'O'},
-  {position: 9, name: 'Fluorine', weight: 18.9984, symbol: 'F'},
-  {position: 10, name: 'Neon', weight: 20.1797, symbol: 'Ne'},
-  {position: 11, name: 'Sodium', weight: 22.9897, symbol: 'Na'},
-  {position: 12, name: 'Magnesium', weight: 24.305, symbol: 'Mg'},
-  {position: 13, name: 'Aluminum', weight: 26.9815, symbol: 'Al'},
-  {position: 14, name: 'Silicon', weight: 28.0855, symbol: 'Si'},
-  {position: 15, name: 'Phosphorus', weight: 30.9738, symbol: 'P'},
-  {position: 16, name: 'Sulfur', weight: 32.065, symbol: 'S'},
-  {position: 17, name: 'Chlorine', weight: 35.453, symbol: 'Cl'},
-  {position: 18, name: 'Argon', weight: 39.948, symbol: 'Ar'},
-  {position: 19, name: 'Potassium', weight: 39.0983, symbol: 'K'},
-  {position: 20, name: 'Calcium', weight: 40.078, symbol: 'Ca'},
-];
+/** An example database that the data source uses to retrieve data for the table. */
+export class UserHttpDatabase {
+  constructor(private _httpClient: HttpClient) {}
+
+  getRepoIssues(sort: string, order: string, page: number,pageSize: number,filter:string): Observable<UserApi> {
+    const href = Constant.API_ENDPOINT+'/user/list';
+    const requestUrl = `${href}?sort=${sort}&order=${order}&page=${page + 1}&count=${pageSize}&filter=${filter}`;
+
+    return this._httpClient.get<UserApi>(requestUrl);
+  }
+}

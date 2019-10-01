@@ -93,7 +93,7 @@ export class AdduserComponent implements OnInit {
           Swal.fire('Oops...', 'Something went wrong!', 'error');
         }
       }
-  );
+    );
 
 
     

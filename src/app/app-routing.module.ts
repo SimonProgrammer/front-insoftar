@@ -23,10 +23,15 @@ const routes: Routes = [
       data: {animation: 'ListUser'}
   },
   {
-      path: 'updateuser',
+      path: 'updateuser/:identification',
       component: UpdateuserComponent,
       data: {animation: 'UpdateUser'}
-  }
+  },
+  {
+    path: 'updateuser',
+    component: UpdateuserComponent,
+    data: {animation: 'UpdateUser'}
+}
 ];
 
 @NgModule({

@@ -15,11 +15,15 @@ import { MatToolbarModule,
         MatInputModule,
         MatTableModule,
         MatPaginatorModule,
+        MatSortModule,
+        MatProgressSpinnerModule,
+        MatDialogModule,
         MatCardModule } from  '@angular/material';
 import { MatSelectModule } from '@angular/material/select';
 import { AdduserComponent } from './components/adduser/adduser.component';
 import { ListusersComponent } from './components/listusers/listusers.component';
 import { UpdateuserComponent } from './components/updateuser/updateuser.component';
+import { UserUpdateComponent } from './components/user-update/user-update.component';
 
 export const options: Partial<IConfig> | (() => Partial<IConfig>) = {};
 
@@ -28,7 +32,8 @@ export const options: Partial<IConfig> | (() => Partial<IConfig>) = {};
     AppComponent,
     AdduserComponent,
     ListusersComponent,
-    UpdateuserComponent
+    UpdateuserComponent,
+    UserUpdateComponent
   ],
   imports: [
     BrowserModule,
@@ -41,14 +46,18 @@ export const options: Partial<IConfig> | (() => Partial<IConfig>) = {};
     MatSelectModule,
     MatInputModule,
     MatCardModule,
+    MatSortModule,
+    MatProgressSpinnerModule,
     FormsModule,
     MatTableModule,
     MatPaginatorModule,
+    MatDialogModule,
     ReactiveFormsModule,
     HttpClientModule,
     NgxMaskModule.forRoot(options)
   ],
   providers: [],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
+  entryComponents: [UserUpdateComponent]
 })
 export class AppModule { }
